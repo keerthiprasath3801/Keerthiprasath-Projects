@@ -1,0 +1,43 @@
+import requests
+Gst_link="https://cleartax.in/s/gst-rates"
+link=requests.get(Gst_link).text
+print(link)
+from bs4 import BeautifulSoup
+soup=BeautifulSoup(link,'lxml')
+print(soup)
+print(soup.prettify)
+soup.title
+soup.title.string
+soup.a
+all_link=soup.find_all("a")
+for link in all_link:
+    print(link.get("href"))
+all_table=soup.find_all("table")
+print(all_table)
+right_table=soup.find("table", class_="ck-table-resized")
+print(right_table)
+paragraph=right_table.find_all('p')
+paragraph
+all_rows=right_table.findAll('tr')
+lst_Tax_Rate=[]
+for row in all_rows:
+    col=row.findAll('td')
+    if len(col) >=0:
+        lst_Tax_Rate.append(col[0].text)
+lst_Tax_Rate
+all_rows1=right_table.findAll('tr')
+lst_Product=[]
+for row in all_rows1:
+    col=row.findAll('td')
+    if len(col) >=0:
+        lst_Product.append(col[1].text)
+lst_Product
+import pandas as pd
+df=pd.DataFrame()
+df['Tax_Rate']=lst_Tax_Rate
+df['Product']=lst_Product
+#df.to_excel(r'D:\Gst_Tax_list.xlsx')
+df
+df.drop(df.index[0], inplace=True)
+df
+df.to_excel(r'D:\Gst_Tax_list.xlsx')
