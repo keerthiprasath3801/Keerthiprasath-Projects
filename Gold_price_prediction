@@ -1,0 +1,74 @@
+import numpy as np #numpy is used for performing array
+import pandas as pd # used to create a data frame
+import matplotlib.pyplot as plt #used for making plots and graphs
+import seaborn as sns #Seaborn is the extended version of Matplotlib which uses Matplotlib along with Numpy and Pandas for plotting graphs
+from sklearn.model_selection import train_test_split #scikit  it simplifies the process of implementing machine learning and statistical models
+from sklearn.ensemble import RandomForestRegressor
+from sklearn import metrics # to analyze the performance of predictive models. 
+
+Gold_data=pd.read_csv("Data Sets/gld_price_data.csv") #loading the csv data to a pandas dataframe
+Gold_data.head()#head print first 5 rows in the datase
+Gold_data.tail()#tail print last 5 rows
+Gold_data.shape # shape is used for identifying no of rows and columns Don't paranthesis at end for shape
+Gold_data.info()#getting some information about the data
+Gold_data.isnull().sum()#isnull() is used for checking the no of missing values.sum() gives the total no of null value in each column
+Gold_data.describe()#It is used for getting some info about statistical measueres in the data
+Gold_data['Date'] = pd.to_datetime(Gold_data['Date'])#converting the date column to date time format
+correlation = Gold_data.corr() #It is a statistical measure that describes the relationship between two variables
+plt.figure(figsize=(8, 8))  # Set the size of the figure
+sns.heatmap(correlation, cbar=True, square=True, fmt='.1f', annot=True, annot_kws={'size': 8}, cmap='YlOrBr')
+#cbar=True: Displays the color bar, which indicates the scale of the values represented by colors
+#square=True: Forces the cells of the heatmap to be square-shaped, making the heatmap more visually uniform.
+#fmt='.1f': Specifies the format for the annotations, where .1f means one decimal place.
+#annot=True: Enables annotation within the heatmap cells, displaying the numeric values on the heatmap.
+#annot_kws={'size': 8}: Customizes the size of the annotation text, with size: 8 setting the font size to 8.
+#cmap='YlOrBr': Sets the colormap to "Yellow-Orange-Brown," defining the color scheme used for the heatmap.
+print(correlation['GLD']) # to see the correlation values of the gold
+sns.distplot(Gold_data['GLD'],color='yellow')#distplot is used for the distribution of the gold price
+#spliting the data
+x=Gold_data.drop(['Date','GLD'],axis=1)#axis 1 indicates droping the column where axis 0 indicates droping the row
+y=Gold_data['GLD']# storing the gold column in y
+print(x)
+print(y)
+#splitting in to training and testing data
+
+x_train, x_test, y_train ,y_test = train_test_split(x,y, test_size = 0.2, random_state=2)
+
+#x_train: The subset of features (independent variables) used for training the model.
+#x_test: The subset of features used for testing the model's performance after training.
+#y_train: The subset of target values (dependent variable) corresponding to x_train, used for training the model.
+#y_test: The subset of target values corresponding to x_test, used to evaluate the model's performance.
+#x: The full dataset of features (independent variables) to be split into training and testing sets.
+#y: The full dataset of target values (dependent variable) to be split alongside the features.
+#test_size=0.2: Specifies that 20% of the data should be allocated to the test set, while the remaining 80% is used for training.
+#random_state=2: Sets a seed for the random number generator to ensure reproducibility, allowing for consistent splits across different runs.
+#Model Training Random forest regression
+regressor = RandomForestRegressor(n_estimators=100)
+#n_estimators=100: Specifies the number of decision trees (estimators) to be created in the forest; here, 100 trees will be used to make predictions, improving the model's performance and stability.
+#training the model
+regressor.fit(x_train, y_train)
+#prediction on test data
+test_data_prediction= regressor.predict(x_test)
+print(test_data_prediction)
+#R squared error
+#R-squared (R²) is a statistical measure that indicates how well the independent variables explain the variability of the dependent variable in a regression model. It ranges from 0 to 1, where 0 means the model does not explain any variability and 1 means it explains all variability, thus a higher R² indicates a better fit of the model.
+error_score = metrics.r2_score(y_test, test_data_prediction)
+# here y_test data have original value where test_data_prediction have trained value
+print("R squared error : ",error_score)
+#compare the actual values and predicted values in a plot
+y_test=list(y_test)#converting the y_test to the list
+plt.plot(y_test, color='gold', label='Actual value')
+plt.plot(test_data_prediction, color='green', label='Predicted value')
+plt.title('Actual price vs predicted price')
+plt.xlabel('no of values')
+plt.ylabel('Gold price')
+plt.legend()
+plt.show()
+
+#plt.plot(y_test, color='gold', label='Actual value'): Plots the actual values from the test set (y_test) in gold color and labels this line as "Actual value."
+#plt.plot(test_data_prediction, color='green', label='Predicted value'): Plots the predicted values (test_data_prediction) in green color and labels this line as "Predicted value."
+#plt.title('Actual price vs predicted price'): Sets the title of the plot to "Actual price vs predicted price."
+#plt.xlabel('no of values'): Labels the x-axis as "no of values," indicating that it represents the index or number of data points.
+#plt.ylabel('Gold price'): Labels the y-axis as "Gold price," indicating that it represents the price of gold.
+#plt.legend(): Displays a legend on the plot to differentiate between the actual and predicted values based on their labels.
+#plt.show(): Renders the plot and displays it on the screen.
